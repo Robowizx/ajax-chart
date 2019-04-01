@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+	<script>
+		var data;
+        function start(){
+			 var request = new XMLHttpRequest();
+			 request.onreadystatechange= function(){
+				 if(this.readyState==4 && this.status==200){
+					 data = JSON.parse(this.responseText);
+					 console.log(data);
+					 print();
+				 }
+			 };
+			 request.open("GET","http://localhost:3000/"+document.getElementById('name').value,true);
+			 request.send();
+		}
+		function print(){
+            google.charts.load("current", {packages:["calendar"]});
+            google.charts.setOnLoadCallback(drawChart);
+		}
+		function drawChart() {
+        var dataTable = new google.visualization.DataTable();
+       dataTable.addColumn({ type: 'date', id: 'Date' });
+       dataTable.addColumn({ type: 'number', id: 'Attendence' });
+       dataTable.addColumn({type:'string',id:'message',role:'tooltip'})
+       for(var i in data.days){
+		   dataTable.addRow([new Date(data.days[i].date[0],data.days[i].date[1],data.days[i].date[2]),1,data.days[i].tip]);
+	   }
+
+       var chart = new google.visualization.Calendar(document.getElementById('calendar_basic'));
+
+       var options = {
+         title: data.id+" Attendence",
+         height: 350,
+         colorAxis: {minValue: 0}
+       };
+
+       chart.draw(dataTable, options);
+    }
+	</script>
+</head>
+<body>
+    <form>
+    	RailId:
+    	<input type="text" id="name"><br>
+    	<input type="button" id="sub" value="Submit" onclick="start()">
+   </form>
+   <div id="calendar_basic" style="width: 1000px; height: 350px;"></div>
+</body>
+</html>
